@@ -2,11 +2,86 @@ const router = require("express").Router();
 const User = require("./userSchema");
 const bcrypt = require("bcryptjs");
 const jwt = require("JsonWebToken");
+const Salary = require("./salary");
+const Expanse = require("./expanse");
+
+router.post("/add-expanse", async (req, res) => {
+  try {
+    if (!req.body.user_id) {
+      res.status(400).json("user_id is requird.!");
+    }
+    if (req.body._id) {
+      await Expanse.findOneAndUpdate(
+        { "_id": req.body._id }, // Filter
+        {
+          food: req.body.food,
+          loan: req.body.loan,
+          fuel_office: req.body.fuel_office,
+          fuel_personal: req.body.fuel_personal,
+        }, // Update
+      )
+    } else {
+      const expanse = await new Expanse({
+        user_id: req.body.user_id,
+        food: req.body.food,
+        loan: req.body.loan,
+        fuel_office: req.body.fuel_office,
+        fuel_personal: req.body.fuel_personal,
+      });
+      var data = await expanse.save();
+    }
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.post("/get-expanse", async (req, res) => {
+  try {
+    const data = await Expanse.findOne({ user_id: req.body.user_id })
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.post("/add-salary", async (req, res) => {
+  try {
+    if (!req.body.user_id) {
+      res.status(400).json("user_id is requird.!");
+    }
+    if (req.body._id) {
+      await Salary.findOneAndUpdate(
+        { "_id": req.body._id }, // Filter
+        { salary: req.body.salary }, // Update
+      )
+    } else {
+      const salary = await new Salary({
+        user_id: req.body.user_id,
+        salary: req.body.salary,
+      });
+      var data = await salary.save();
+    }
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+router.post("/get-salary", async (req, res) => {
+  try {
+    const data = await Salary.findOne({ user_id: req.body.user_id })
+    res.json(data);
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 router.post("/register", async (req, res) => {
   try {
+
     var emailExist = await User.findOne({ email: req.body.email });
-    console.log('emailExist',emailExist);
+
     if (emailExist) {
       res.status(400).json("Email already exist");
     }
@@ -21,11 +96,15 @@ router.post("/register", async (req, res) => {
     });
 
     var data = await user.save();
-    res.json(data);
+    console.log(data)
+    var userToken = jwt.sign({ email: data.email, user_id: data?._id, name: data?.name }, "secret");
+    res.status(200).json({ userToken });
+
   } catch (err) {
-    console.log(err);
+    res.status(400).json(err);
   }
 });
+
 router.post("/login", async (req, res) => {
   try {
     var userExist = await User.findOne({ email: req.body.email });
@@ -39,8 +118,8 @@ router.post("/login", async (req, res) => {
     if (!valiPas) {
       res.status(400).json("password not valid");
     }
-    var userToken = await jwt.sign({ email: userExist.email }, "secret");
-      res.status(200).json(userToken);
+    var userToken = jwt.sign({ email: userExist.email, user_id: userExist?.id, name: userExist?.name }, "secret");
+    res.status(200).json({ userToken });
     //   res.header("auth", userToken).json(userToken);
   } catch (err) {
     res.status(400).json(err);

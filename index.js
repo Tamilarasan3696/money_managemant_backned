@@ -5,11 +5,7 @@ const cors = require("cors");
 const userRouter = require("./userRouter");
 mongooes.set("strictQuery", true);
 mongooes.connect(
-  "mongodb+srv://tamil:9585157515@cluster0.ypnxadj.mongodb.net/?retryWrites=true&w=majority",
-  //   {
-  //     useNewUrlParser: true,
-  //     connectTimeoutMS: 5000,
-  //   },
+  "mongodb+srv://gandhitamilarasan:9585157515@cluster0.hfw02eq.mongodb.net",
   () => {
     console.log("server connect successfully");
 
