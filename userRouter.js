@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const User = require("./userSchema");
 const bcrypt = require("bcryptjs");
-const jwt = require("JsonWebToken");
+const jwt = require("jsonwebtoken");
 const Salary = require("./salary");
 const Expanse = require("./expanse");
 
